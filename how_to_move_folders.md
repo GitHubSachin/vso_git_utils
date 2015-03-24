@@ -77,3 +77,10 @@ One you have moved all the files from sub1 to appropriate place in repoB,
 
 Now follow this process for each subfolder you want to do this for each folder. delete the "tmp-move" folder/local repo each time to move new folder.
 
+How to delete folders permenantly
+--------------------------------
+git filter-branch --tree-filter "rm -rf src/yourfolder" HEAD
+
+At the end, don't forget to push the changes to the repository with --force, since this is not a fast forward commit, and the whole history within the commits range we filtered will be rewritten.
+
+git push origin master --force
