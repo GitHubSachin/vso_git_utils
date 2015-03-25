@@ -95,7 +95,7 @@ $lastTag = $tagdata.Tag
 $lastTagCommitHash = $tagdata.TagCommitHash
 
 #now parse the version tag in version format format major.minor.build.revision
-$VersionNumber = Parse-VersionStringFromTag $lastTag $lastTagCommitHash
+$VersionNumber = Parse-VersionStringFromTag $lastTag $gitcommitHash $lastTagCommitHash
 [reflection.assembly]::LoadWithPartialName("System.Version")
 
 $version = New-Object System.Version($VersionNumber)
@@ -127,6 +127,8 @@ if($VersionData1.Count -eq 1)
 {
     $VersionNumber = $VersionData1[0].ToString()
     Write-Verbose "Full version is in the tag, checking if tagged commit is behind current commit"
+    Write-Verbose $currentCommitHash
+    Write-Verbose $tagCommitHash
     if($currentCommitHash -ne $tagCommitHash)
     {
         Write-Verbose "getting incremental revision form last tagged commit till $currentCommitHash"
@@ -216,6 +218,7 @@ Process
                 $lastTagCommitHash = $commitsTillTag[0]
             }
             $lastTag = $tag
+            break;
         }
         else
         {
