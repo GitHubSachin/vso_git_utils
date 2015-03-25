@@ -112,7 +112,7 @@ Write-Output @{ "Version" = $version;
 function Parse-VersionStringFromTag
 {
 [CmdletBinding()]
-Param([string]$lastTag, [string] $currentCommitHash)
+Param([string]$lastTag, [string] $currentCommitHash, [string] $tagCommitHash)
 Process
 {
 $VersionRegex1 = "\d+\.\d+\.\d+\.\d+"
@@ -126,6 +126,17 @@ $VersionData3 = [regex]::matches($lastTag,$VersionRegex3)
 if($VersionData1.Count -eq 1)
 {
     $VersionNumber = $VersionData1[0].ToString()
+    Write-Verbose "Full version is in the tag, checking if tagged commit is behind current commit"
+    if($currentCommitHash -ne $tagCommitHash)
+    {
+        Write-Verbose "getting incremental revision form last tagged commit till $currentCommitHash"
+        $incrementalRev = (Get-Revision $tagCommitHash)
+        
+        $parts = $VersionNumber.Split(".")
+        $rev = ([System.Convert]::ToInt32($parts[3]) + [System.Convert]::ToInt32($incrementalRev))
+        Write-Verbose "calculated revision number since last tagged commit is $rev"
+        $VersionNumber = "{0}.{1}.{2}.{3}" -f @($parts[0],$parts[1],$parts[2],$rev)
+    }
 }
 elseif($VersionData2.Count -eq 1)
 {
@@ -196,7 +207,14 @@ Process
         if($VersionData.Count -eq 1)
         {
             $commitsTillTag = & $gitExe rev-list $tag
-            $lastTagCommitHash = $commitsTillTag[0]
+            if($commitsTillTag.GetType().Name -eq "String")
+            {
+                $lastTagCommitHash = $commitsTillTag
+            }
+            else
+            {
+                $lastTagCommitHash = $commitsTillTag[0]
+            }
             $lastTag = $tag
         }
         else
@@ -216,5 +234,5 @@ Process
 #Get-GitCommitDetails | Format-Table -AutoSize
 #Get-VersionFromGitTag -Verbose
 #Get-LatestVersionTag -Verbose
-#Parse-VersionFromTag "v2.0.0" "25e42623711d435951f48775969ec3011a5f10f0" -verbose
+#Parse-VersionStringFromTag "v1.0.3.14" "9c28139bdea6c1b2163febf47c67aa8df020bf7d" "4839f863d8c5065b049cd4aa4cd680774b63ea8a" -Verbose
 #Get-Revision "25e42623711d435951f48775969ec3011a5f10f0"
