@@ -39,5 +39,5 @@ Assuming this is third commit to the repo.
 |:------------- |:-------------|:-----|
 | CurrentCommitHash | 00124663509e5b82d0dc91e5c4f492a89d74b2ae | String |
 | Version      | 1.0.0.3 | System.Version  |
-| Tag | v1.0   | String |
+| Tag | $null   | String |
 | TagCommitHash | $null  | String  |
